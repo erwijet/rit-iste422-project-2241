@@ -1,3 +1,6 @@
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -69,26 +72,36 @@ public class EdgeConvertGUI {
    static JMenuBar jmbDRMenuBar;
    static JMenu jmDRFile, jmDROptions, jmDRHelp;
    static JMenuItem jmiDROpenEdge, jmiDROpenSave, jmiDRSave, jmiDRSaveAs, jmiDRExit, jmiDROptionsOutputLocation, jmiDROptionsShowProducts, jmiDRHelpAbout;
+
+   static Logger logger = LogManager.getLogger();
    
    public EdgeConvertGUI() {
+      logger.info("Initializing...");
+      logger.info("Registering listeners...");
+
       menuListener = new EdgeMenuListener();
       radioListener = new EdgeRadioButtonListener();
       edgeWindowListener = new EdgeWindowListener();
       createDDLListener = new CreateDDLButtonListener();
+
       this.showGUI();
    } // EdgeConvertGUI.EdgeConvertGUI()
    
    public void showGUI() {
+      logger.info("Showing GUI...");
       try {
          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); //use the OS native LAF, as opposed to default Java LAF
+         logger.info("Set look and feel");
       } catch (Exception e) {
-         System.out.println("Error setting native LAF: " + e);
+         logger.fatal("Error setting native LAF: " + e);
       }
       createDTScreen();
       createDRScreen();
    } //showGUI()
 
    public void createDTScreen() {//create Define Tables screen
+      logger.info("Creating DT Screen");
+
       jfDT = new JFrame(DEFINE_TABLES);
       jfDT.setLocation(HORIZ_LOC, VERT_LOC);
       Container cp = jfDT.getContentPane();
@@ -166,6 +179,7 @@ public class EdgeConvertGUI {
       jbDTDefineRelations.addActionListener(
          new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
+               logger.info("Handling incoming action...");
                jfDT.setVisible(false);
                jfDR.setVisible(true); //show the Define Relations screen
                clearDTControls();
@@ -185,6 +199,7 @@ public class EdgeConvertGUI {
       jlDTTablesAll.addListSelectionListener(
          new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent lse)  {
+               logger.info("Handling jlTDTableAll valueChanged...");
                int selIndex = jlDTTablesAll.getSelectedIndex();
                if (selIndex >= 0) {
                   String selText = dlmDTTablesAll.getElementAt(selIndex).toString();
@@ -208,6 +223,8 @@ public class EdgeConvertGUI {
       jlDTFieldsTablesAll.addListSelectionListener(
          new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent lse) {
+               logger.info("Handling jlDTFieldsTableAll valueChanged...");
+
                int selIndex = jlDTFieldsTablesAll.getSelectedIndex();
                if (selIndex >= 0) {
                   if (selIndex == 0) {
@@ -245,6 +262,8 @@ public class EdgeConvertGUI {
       jbDTMoveUp.addActionListener(
          new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
+               logger.info("Handling incoming jbDTMoveUp action...");
+
                int selection = jlDTFieldsTablesAll.getSelectedIndex();
                currentDTTable.moveFieldUp(selection);
                //repopulate Fields List
@@ -264,6 +283,8 @@ public class EdgeConvertGUI {
       jbDTMoveDown.addActionListener(
          new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
+               logger.info("Handling incoming jbDTMoveDown action...");
+
                int selection = jlDTFieldsTablesAll.getSelectedIndex(); //the original selected index
                currentDTTable.moveFieldDown(selection);
                //repopulate Fields List
@@ -869,6 +890,8 @@ public class EdgeConvertGUI {
    }
    
    private void saveAs() {
+      logger.info("Saving...");
+
       int returnVal;
       jfcEdge.addChoosableFileFilter(effSave);
       returnVal = jfcEdge.showSaveDialog(null);
@@ -878,6 +901,7 @@ public class EdgeConvertGUI {
              int response = JOptionPane.showConfirmDialog(null, "Overwrite existing file?", "Confirm Overwrite",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
              if (response == JOptionPane.CANCEL_OPTION) {
+                logger.info("Save cancelled...");
                 return;
              }
          }
@@ -914,13 +938,15 @@ public class EdgeConvertGUI {
             //close the file
             pw.close();
          } catch (IOException ioe) {
-            System.out.println(ioe);
+            logger.fatal(ioe);
          }
          dataSaved = true;
       }
    }
 
    private void setOutputDir() {
+      logger.info("Setting output dir...");
+
       int returnVal;
       outputDirOld = outputDir;
       alSubclasses = new ArrayList();
@@ -974,7 +1000,7 @@ public class EdgeConvertGUI {
       String classLocation = EdgeConvertGUI.class.getResource("EdgeConvertGUI.class").toString();
       if (classLocation.startsWith("jar:")) {
           String jarfilename = classLocation.replaceFirst("^.*:", "").replaceFirst("!.*$", "");
-          System.out.println("Jarfile: " + jarfilename);
+          logger.info("Jarfile: " + jarfilename);
           try (JarFile jarfile = new JarFile(jarfilename)) {
               ArrayList<File> filenames = new ArrayList<>();
               for (JarEntry e : Collections.list(jarfile.entries())) {
@@ -992,7 +1018,7 @@ public class EdgeConvertGUI {
       alSubclasses.clear();
       try {
          for (int i = 0; i < resultFiles.length; i++) {
-         System.out.println(resultFiles[i].getName());
+            logger.debug(resultFiles[i].getName());
             if (!resultFiles[i].getName().endsWith(".class")) {
                continue; //ignore all files that are not .class files
             }
@@ -1096,7 +1122,7 @@ public class EdgeConvertGUI {
             //close the file
             pw.close();
          } catch (IOException ioe) {
-            System.out.println(ioe);
+            logger.fatal(ioe);
          }
       }
    }
@@ -1277,6 +1303,8 @@ public class EdgeConvertGUI {
                   return;
                }
             }
+
+            logger.warn("Nothing selected, exiting...");
             System.exit(0); //No was selected
          }
          

@@ -1,3 +1,6 @@
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.*;
 
 public class EdgeTable {
@@ -5,6 +8,8 @@ public class EdgeTable {
    private String name;
    private ArrayList alRelatedTables, alNativeFields;
    private int[] relatedTables, relatedFields, nativeFields;
+
+   static Logger logger = LogManager.getLogger();
    
    public EdgeTable(String inputString) {
       StringTokenizer st = new StringTokenizer(inputString, EdgeConvertFileParser.DELIM);
@@ -12,41 +17,52 @@ public class EdgeTable {
       name = st.nextToken();
       alRelatedTables = new ArrayList();
       alNativeFields = new ArrayList();
+
+      logger.info("Initializing");
    }
    
    public int getNumFigure() {
+      logger.debug("Getting numFigure");
       return numFigure;
    }
    
    public String getName() {
+      logger.debug("Getting name");
       return name;
    }
    
    public void addRelatedTable(int relatedTable) {
+      logger.debug("Adding " + relatedTable + " to related tables");
       alRelatedTables.add(new Integer(relatedTable));
    }
    
    public int[] getRelatedTablesArray() {
+      logger.debug("Getting relatedTables");
       return relatedTables;
    }
    
    public int[] getRelatedFieldsArray() {
+      logger.debug("Getting relatedFields");
       return relatedFields;
    }
    
    public void setRelatedField(int index, int relatedValue) {
+      logger.debug("Setting relatedField @" + index + " to " + relatedValue);
       relatedFields[index] = relatedValue;
    }
    
    public int[] getNativeFieldsArray() {
+      logger.debug("Getting nativeFields");
       return nativeFields;
    }
 
    public void addNativeField(int value) {
+      logger.debug("Adding " + value + " to nativeFields");
       alNativeFields.add(new Integer(value));
    }
 
    public void moveFieldUp(int index) { //move the field closer to the beginning of the list
+      logger.debug("Moving field @" + index + " up");
       if (index == 0) {
          return;
       }
@@ -59,6 +75,8 @@ public class EdgeTable {
    }
    
    public void moveFieldDown(int index) { //move the field closer to the end of the list
+      logger.info("Moving field @" + index + " down");
+
       if (index == (nativeFields.length - 1)) {
          return;
       }
@@ -71,6 +89,7 @@ public class EdgeTable {
    }
 
    public void makeArrays() { //convert the ArrayLists into int[]
+      logger.debug("Making arrays...");
       Integer[] temp;
       temp = (Integer[])alNativeFields.toArray(new Integer[alNativeFields.size()]);
       nativeFields = new int[temp.length];

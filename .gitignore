@@ -26,3 +26,5 @@ nohup.out
 build/
 .DS_Store
 
+.gradle
+.idea

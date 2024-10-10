@@ -1,3 +1,6 @@
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
@@ -25,6 +28,8 @@ public class EdgeConvertFileParser {
    public static final String EDGE_ID = "EDGE Diagram File"; //first line of .edg files should be this
    public static final String SAVE_ID = "EdgeConvert Save File"; //first line of save files should be this
    public static final String DELIM = "|";
+
+   static Logger logger = LogManager.getLogger();
    
    public EdgeConvertFileParser(File constructorFile) {
       numFigure = 0;
@@ -37,11 +42,18 @@ public class EdgeConvertFileParser {
       parseFile = constructorFile;
       numLine = 0;
       this.openFile(parseFile);
+
+      logger.info("Initialized EdgeConvertFileParser for " + constructorFile);
    }
 
    public void parseEdgeFile() throws IOException {
+      logger.info("Parsing Info File...");
+
       while ((currentLine = br.readLine()) != null) {
          currentLine = currentLine.trim();
+
+         logger.debug("Parsing '" + currentLine + "'");
+
          if (currentLine.startsWith("Figure ")) { //this is the start of a Figure entry
             numFigure = Integer.parseInt(currentLine.substring(currentLine.indexOf(" ") + 1)); //get the Figure number
             currentLine = br.readLine().trim(); // this should be "{"
@@ -51,24 +63,31 @@ public class EdgeConvertFileParser {
             } else {
                style = currentLine.substring(currentLine.indexOf("\"") + 1, currentLine.lastIndexOf("\"")); //get the Style parameter
                if (style.startsWith("Relation")) { //presence of Relations implies lack of normalization
+                  logger.warn("Showing relation error dialog...");
                   JOptionPane.showMessageDialog(null, "The Edge Diagrammer file\n" + parseFile + "\ncontains relations.  Please resolve them and try again.");
                   EdgeConvertGUI.setReadSuccess(false);
+                  logger.warn("Aborting...");
                   break;
-               } 
+               }
                if (style.startsWith("Entity")) {
+                  logger.info("Found entity");
                   isEntity = true;
                }
                if (style.startsWith("Attribute")) {
+                  logger.info("Found attribute");
                   isAttribute = true;
                }
                if (!(isEntity || isAttribute)) { //these are the only Figures we're interested in
+                  logger.info("Found non-entity, non-attribute figure. Skipping...");
                   continue;
                }
                currentLine = br.readLine().trim(); //this should be Text
                text = currentLine.substring(currentLine.indexOf("\"") + 1, currentLine.lastIndexOf("\"")).replaceAll(" ", ""); //get the Text parameter
                if (text.equals("")) {
+                  logger.warn("Showing blank name dialog...");
                   JOptionPane.showMessageDialog(null, "There are entities or attributes with blank names in this diagram.\nPlease provide names for them and try again.");
                   EdgeConvertGUI.setReadSuccess(false);
+                  logger.warn("Aborting...");
                   break;
                }
                int escape = text.indexOf("\\");
@@ -85,15 +104,21 @@ public class EdgeConvertFileParser {
                
                if (isEntity) { //create a new EdgeTable object and add it to the alTables ArrayList
                   if (isTableDup(text)) {
+                     logger.warn("Showing duplicate dialog...");
                      JOptionPane.showMessageDialog(null, "There are multiple tables called " + text + " in this diagram.\nPlease rename all but one of them and try again.");
                      EdgeConvertGUI.setReadSuccess(false);
+                     logger.warn("Aborting...");
                      break;
                   }
+
+                  logger.info("Registering table: " + numFigure + DELIM + text);
                   alTables.add(new EdgeTable(numFigure + DELIM + text));
                }
                if (isAttribute) { //create a new EdgeField object and add it to the alFields ArrayList
                   tempField = new EdgeField(numFigure + DELIM + text);
                   tempField.setIsPrimaryKey(isUnderlined);
+
+                  logger.info("Registering field: " + tempField);
                   alFields.add(tempField);
                }
                //reset flags
@@ -103,6 +128,7 @@ public class EdgeConvertFileParser {
             }
          } // if("Figure")
          if (currentLine.startsWith("Connector ")) { //this is the start of a Connector entry
+            logger.info("Found connector");
             numConnector = Integer.parseInt(currentLine.substring(currentLine.indexOf(" ") + 1)); //get the Connector number
             currentLine = br.readLine().trim(); // this should be "{"
             currentLine = br.readLine().trim(); // not interested in Style
@@ -122,16 +148,21 @@ public class EdgeConvertFileParser {
             do { //advance to end of record
                currentLine = br.readLine().trim();
             } while (!currentLine.equals("}")); // this is the end of a Connector entry
-            
+
+            logger.info("Registering connector: " + numConnector + DELIM + endPoint1 + DELIM + endPoint2 + DELIM + endStyle1 + DELIM + endStyle2);
             alConnectors.add(new EdgeConnector(numConnector + DELIM + endPoint1 + DELIM + endPoint2 + DELIM + endStyle1 + DELIM + endStyle2));
          } // if("Connector")
       } // while()
    } // parseEdgeFile()
    
    private void resolveConnectors() { //Identify nature of Connector endpoints
+      logger.info("Resolving connector...");
+
       int endPoint1, endPoint2;
       int fieldIndex = 0, table1Index = 0, table2Index = 0;
       for (int cIndex = 0; cIndex < connectors.length; cIndex++) {
+         logger.info("Processing connector #" + (cIndex + 1));
+
          endPoint1 = connectors[cIndex].getEndPoint1();
          endPoint2 = connectors[cIndex].getEndPoint2();
          fieldIndex = -1;
@@ -157,16 +188,20 @@ public class EdgeConvertFileParser {
          }
          
          if (connectors[cIndex].getIsEP1Field() && connectors[cIndex].getIsEP2Field()) { //both endpoints are fields, implies lack of normalization
+            logger.warn("Showing composite attribute warning dialog...");
             JOptionPane.showMessageDialog(null, "The Edge Diagrammer file\n" + parseFile + "\ncontains composite attributes. Please resolve them and try again.");
             EdgeConvertGUI.setReadSuccess(false); //this tells GUI not to populate JList components
+            logger.warn("Aborting...");
             break; //stop processing list of Connectors
          }
 
          if (connectors[cIndex].getIsEP1Table() && connectors[cIndex].getIsEP2Table()) { //both endpoints are tables
             if ((connectors[cIndex].getEndStyle1().indexOf("many") >= 0) &&
                 (connectors[cIndex].getEndStyle2().indexOf("many") >= 0)) { //the connector represents a many-many relationship, implies lack of normalization
+               logger.warn("Showing many-to-many relationship dialog...");
                JOptionPane.showMessageDialog(null, "There is a many-many relationship between tables\n\"" + tables[table1Index].getName() + "\" and \"" + tables[table2Index].getName() + "\"" + "\nPlease resolve this and try again.");
                EdgeConvertGUI.setReadSuccess(false); //this tells GUI not to populate JList components
+               logger.warn("Aborting...");
                break; //stop processing list of Connectors
             } else { //add Figure number to each table's list of related tables
                tables[table1Index].addRelatedTable(tables[table2Index].getNumFigure());
@@ -184,14 +219,18 @@ public class EdgeConvertFileParser {
                fields[fieldIndex].setTableID(tables[table2Index].getNumFigure()); //tell the field what table it belongs to
             }
          } else if (fieldIndex >=0) { //field has already been assigned to a table
+            logger.warn("Showing multi-table attribute dialog...");
             JOptionPane.showMessageDialog(null, "The attribute " + fields[fieldIndex].getName() + " is connected to multiple tables.\nPlease resolve this and try again.");
             EdgeConvertGUI.setReadSuccess(false); //this tells GUI not to populate JList components
+            logger.warn("Aborting...");
             break; //stop processing list of Connectors
          }
       } // connectors for() loop
    } // resolveConnectors()
    
    public void parseSaveFile() throws IOException { //this method is unclear and confusing in places
+      logger.info("Parsing save file...");
+
       StringTokenizer stTables, stNatFields, stRelFields, stNatRelFields, stField;
       EdgeTable tempTable;
       EdgeField tempField;
@@ -227,12 +266,15 @@ public class EdgeConvertFileParser {
             tempTable.setRelatedField(i, Integer.parseInt(stRelFields.nextToken()));
          }
 
+         logger.info("Adding table: " + tempTable);
+
          alTables.add(tempTable);
          currentLine = br.readLine(); //this should be "}"
          currentLine = br.readLine(); //this should be "\n"
          currentLine = br.readLine(); //this should be either the next "Table: ", #Fields#
       }
       while ((currentLine = br.readLine()) != null) {
+         logger.info("Processing line: " + currentLine);
          stField = new StringTokenizer(currentLine, DELIM);
          numFigure = Integer.parseInt(stField.nextToken());
          fieldName = stField.nextToken();
@@ -245,8 +287,11 @@ public class EdgeConvertFileParser {
          tempField.setIsPrimaryKey(Boolean.valueOf(stField.nextToken()).booleanValue());
          tempField.setDisallowNull(Boolean.valueOf(stField.nextToken()).booleanValue());
          if (stField.hasMoreTokens()) { //Default Value may not be defined
+            logger.info("Found default value");
             tempField.setDefaultValue(stField.nextToken());
          }
+
+         logger.info("Adding field: " + tempField);
          alFields.add(tempField);
       }
    } // parseSaveFile()
@@ -274,14 +319,17 @@ public class EdgeConvertFileParser {
    }
    
    public EdgeTable[] getEdgeTables() {
+      logger.debug("Getting tables");
       return tables;
    }
    
    public EdgeField[] getEdgeFields() {
+      logger.debug("Getting fields");
       return fields;
    }
    
    public void openFile(File inputFile) {
+      logger.info("Opeining file: " + inputFile);
       try {
          fr = new FileReader(inputFile);
          br = new BufferedReader(fr);
@@ -289,6 +337,7 @@ public class EdgeConvertFileParser {
          currentLine = br.readLine().trim();
          numLine++;
          if (currentLine.startsWith(EDGE_ID)) { //the file chosen is an Edge Diagrammer file
+            logger.info("Found Edge Diagrammer File");
             this.parseEdgeFile(); //parse the file
             br.close();
             this.makeArrays(); //convert ArrayList objects into arrays of the appropriate Class type
@@ -299,16 +348,18 @@ public class EdgeConvertFileParser {
                br.close();
                this.makeArrays(); //convert ArrayList objects into arrays of the appropriate Class type
             } else { //the file chosen is something else
+               logger.warn("Showing unrecognized file format dialog...");
                JOptionPane.showMessageDialog(null, "Unrecognized file format");
             }
          }
       } // try
       catch (FileNotFoundException fnfe) {
-         System.out.println("Cannot find \"" + inputFile.getName() + "\".");
+         logger.warn("Cannot find \"" + inputFile.getName() + "\".");
+         logger.warn("Quitting...");
          System.exit(0);
       } // catch FileNotFoundException
       catch (IOException ioe) {
-         System.out.println(ioe);
+         logger.fatal(ioe);
          System.exit(0);
       } // catch IOException
    } // openFile()

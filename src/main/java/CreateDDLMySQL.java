@@ -1,3 +1,6 @@
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;   
@@ -16,7 +19,9 @@ public class CreateDDLMySQL extends EdgeConvertCreateDDL {
       super(inputTables, inputFields);
       sb = new StringBuffer();
    } //CreateDDLMySQL(EdgeTable[], EdgeField[])
-   
+
+   static Logger logger = LogManager.getLogger();
+
    public CreateDDLMySQL() { //default constructor with empty arg list for to allow output dir to be set before there are table and field objects
       
    }
@@ -26,9 +31,16 @@ public class CreateDDLMySQL extends EdgeConvertCreateDDL {
       databaseName = generateDatabaseName();
       sb.append("CREATE DATABASE " + databaseName + ";\r\n");
       sb.append("USE " + databaseName + ";\r\n");
+
+      logger.debug("Starting DDL synthesis");
+
       for (int boundCount = 0; boundCount <= maxBound; boundCount++) { //process tables in order from least dependent (least number of bound tables) to most dependent
+         logger.info("Processing bound #" + (boundCount + 1));
          for (int tableCount = 0; tableCount < numBoundTables.length; tableCount++) { //step through list of tables
+            logger.info("Processing table #" + (tableCount + 1));
             if (numBoundTables[tableCount] == boundCount) { //
+               logger.info("Creating table '" + tables[tableCount].getName() + "'");
+
                sb.append("CREATE TABLE " + tables[tableCount].getName() + " (\r\n");
                int[] nativeFields = tables[tableCount].getNativeFieldsArray();
                int[] relatedFields = tables[tableCount].getRelatedFieldsArray();
@@ -63,6 +75,7 @@ public class CreateDDLMySQL extends EdgeConvertCreateDDL {
                   sb.append(",\r\n"); //end of field
                }
                if (numPrimaryKey > 0) { //table has primary key(s)
+                  logger.info("Inserting PK constraint");
                   sb.append("CONSTRAINT " + tables[tableCount].getName() + "_PK PRIMARY KEY (");
                   for (int i = 0; i < primaryKey.length; i++) {
                      if (primaryKey[i]) {
@@ -109,6 +122,8 @@ public class CreateDDLMySQL extends EdgeConvertCreateDDL {
    }
    
    public String generateDatabaseName() { //prompts user for database name
+      logger.info("Generating database name...");
+
       String dbNameDefault = "MySQLDB";
       //String databaseName = "";
 
@@ -133,10 +148,12 @@ public class CreateDDLMySQL extends EdgeConvertCreateDDL {
    }
    
    public String getDatabaseName() {
+      logger.info("Getting databaseName");
       return databaseName;
    }
    
    public String getProductName() {
+      logger.info("Getting productName");
       return "MySQL";
    }
 

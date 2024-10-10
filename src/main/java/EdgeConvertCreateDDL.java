@@ -1,3 +1,6 @@
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -13,7 +16,9 @@ public abstract class EdgeConvertCreateDDL {
    protected int maxBound;
    protected StringBuffer sb;
    protected int selected;
-   
+
+   static Logger logger = LogManager.getLogger();
+
    public EdgeConvertCreateDDL(EdgeTable[] tables, EdgeField[] fields) {
       this.tables = tables;
       this.fields = fields;
@@ -21,18 +26,24 @@ public abstract class EdgeConvertCreateDDL {
    } //EdgeConvertCreateDDL(EdgeTable[], EdgeField[])
    
    public EdgeConvertCreateDDL() { //default constructor with empty arg list for to allow output dir to be set before there are table and field objects
-      
+
    } //EdgeConvertCreateDDL()
 
    public void initialize() {
+      logger.debug("Initializing EdgeConvertCreateDDL...");
+
       numBoundTables = new int[tables.length];
       maxBound = 0;
       sb = new StringBuffer();
 
       for (int i = 0; i < tables.length; i++) { //step through list of tables
+
+         logger.debug("Processing table #" + (i + 1));
+
          int numBound = 0; //initialize counter for number of bound tables
          int[] relatedFields = tables[i].getRelatedFieldsArray();
          for (int j = 0; j < relatedFields.length; j++) { //step through related fields list
+            logger.debug("Processing field #" + j);
             if (relatedFields[j] != 0) {
                numBound++; //count the number of non-zero related fields
             }
@@ -45,6 +56,8 @@ public abstract class EdgeConvertCreateDDL {
    }
    
    protected EdgeTable getTable(int numFigure) {
+      logger.debug("Getting table by " + numFigure);
+
       for (int tIndex = 0; tIndex < tables.length; tIndex++) {
          if (numFigure == tables[tIndex].getNumFigure()) {
             return tables[tIndex];
@@ -54,6 +67,8 @@ public abstract class EdgeConvertCreateDDL {
    }
    
    protected EdgeField getField(int numFigure) {
+      logger.debug("Getting field by " + numFigure);
+
       for (int fIndex = 0; fIndex < fields.length; fIndex++) {
          if (numFigure == fields[fIndex].getNumFigure()) {
             return fields[fIndex];
