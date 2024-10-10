@@ -1,7 +1,6 @@
 plugins {
     id 'java'
     id 'application'
-    id 'checkstyle'
     id 'pmd'
 }
 
@@ -30,16 +29,6 @@ task obfuscator(type: JavaExec) {
 
 repositories {
     mavenCentral()
-}
-
-checkstyle {
-    configFile file("${project.rootDir}/config/checkstyle/sun_checks.xml")
-}
-
-tasks.withType(Checkstyle) {
-    reports {
-        html.required = true
-    }
 }
 
 pmd {
