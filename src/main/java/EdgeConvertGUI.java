@@ -989,6 +989,8 @@ public class EdgeConvertGUI {
    }
    
    private void getOutputClasses() {
+      logger.info("Getting output classes...");
+
       File[] resultFiles = {};
       Class resultClass = null;
       Class[] paramTypes = {EdgeTable[].class, EdgeField[].class};
@@ -998,6 +1000,7 @@ public class EdgeConvertGUI {
       Object objOutput = null;
 	
       String classLocation = EdgeConvertGUI.class.getResource("EdgeConvertGUI.class").toString();
+      logger.info("Using class location: " + classLocation);
       if (classLocation.startsWith("jar:")) {
           String jarfilename = classLocation.replaceFirst("^.*:", "").replaceFirst("!.*$", "");
           logger.info("Jarfile: " + jarfilename);
