@@ -1,11 +1,18 @@
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.StringTokenizer;
 
 public class EdgeConnector {
    private int numConnector, endPoint1, endPoint2;
    private String endStyle1, endStyle2;
    private boolean isEP1Field, isEP2Field, isEP1Table, isEP2Table;
+
+   static Logger logger = LogManager.getLogger();
       
    public EdgeConnector(String inputString) {
+      logger.debug("Creating edge connector from '" + inputString + "'");
+
       StringTokenizer st = new StringTokenizer(inputString, EdgeConvertFileParser.DELIM);
       numConnector = Integer.parseInt(st.nextToken());
       endPoint1 = Integer.parseInt(st.nextToken());
