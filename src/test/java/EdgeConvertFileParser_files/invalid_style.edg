@@ -1,0 +1,28 @@
+EDGE Diagram File
+## Figures & Connectors Section:
+
+Figure 1
+{
+  Style "InvalidStyle"
+  Text "STUDENT"
+  Bounds 100,100,200,200
+  FillColor 255,255,255
+}
+
+Figure 2
+{
+  Style "Entity"
+  Text "COURSE"
+  Bounds 300,100,400,200
+  FillColor 255,255,255
+}
+
+Connector 1
+{
+  Style "Relation"
+  Figure1 1
+  Figure2 2
+  EndPoint1 200,150
+  EndPoint2 300,150
+  LineWidth 2
+}

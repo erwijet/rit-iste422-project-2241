@@ -1,0 +1,32 @@
+EDGE Diagram File
+## Figures & Connectors Section:
+
+Figure 1
+{
+  Label TRUE
+  Style "Label"
+  Text "enrolls in/has"
+  Bounds 730,531,894,563
+  FillColor 1,2,3
+  TextFormat 0x0044
+  Behavior 0x00000000010241E1
+  Symbol "lbl"
+  TypeSize 8
+  TypeFace "Arial"
+  FillType 0
+}
+
+Figure 2
+{
+  Label TRUE
+  Style "Label"
+  Text "taught by/teaches"
+  Bounds 1139,604,1360,636
+  FillColor 1,2,3
+  TextFormat 0x0044
+  Behavior 0x00000000010241E1
+  Symbol "lbl"
+  TypeSize 8
+  TypeFace "Arial"
+  FillType 0
+}
