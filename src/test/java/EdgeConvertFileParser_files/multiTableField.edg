@@ -1,0 +1,47 @@
+EDGE Diagram File
+
+## Figures & Connectors Section:
+
+Figure 1
+{
+  Style "Entity"
+  Text "TABLE1"
+  Bounds 100,100,200,200
+  FillColor 255,255,255
+}
+
+Figure 2
+{
+  Style "Entity"
+  Text "TABLE2"
+  Bounds 300,100,400,200
+  FillColor 255,255,255
+}
+
+Figure 3
+{
+  Style "Attribute"
+  Text "SHARED_FIELD"
+  Bounds 500,100,600,200
+  FillColor 255,255,255
+}
+
+Connector 1
+{
+  Style "Relation"
+  Figure1 1
+  Figure3 3
+  EndPoint1 200,150
+  EndPoint2 600,150
+  LineWidth 2
+}
+
+Connector 2
+{
+  Style "Relation"
+  Figure2 2
+  Figure3 3
+  EndPoint1 400,150
+  EndPoint2 600,150
+  LineWidth 2
+}

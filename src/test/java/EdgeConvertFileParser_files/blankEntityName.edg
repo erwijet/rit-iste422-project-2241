@@ -1,0 +1,11 @@
+EDGE Diagram File
+
+## Figures & Connectors Section:
+
+Figure 1
+{
+  Style "Entity"
+  Text ""
+  Bounds 100,100,200,200
+  FillColor 255,255,255
+}

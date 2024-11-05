@@ -1,0 +1,27 @@
+EDGE Diagram File
+
+## Figures & Connectors Section:
+
+Figure 1
+{
+  Style "Entity"
+  Text "PERSON"
+  Bounds 100,100,200,200
+  FillColor 255,255,255
+}
+
+Figure 2
+{
+  Style "Entity"
+  Text "PRODUCT"
+  Bounds 300,100,400,200
+  FillColor 255,255,255
+}
+
+Figure 3
+{
+  Style "Entity"
+  Text "ORDER"
+  Bounds 500,100,600,200
+  FillColor 255,255,255
+}
