@@ -1,0 +1,114 @@
+T E S T   P L A N 
+--------------------------------------------------------------------------------------
+EdgeConvertCreateDDL:
+---------------------
+- Initialization
+- Default Initialization
+- Given EdgeConvertCreateDDL with tables and fields, when initialized, then numBoundTables should be correctly set based on table length
+- Given EdgeConvertCreateDDL with tables and fields, when initialized, then maxBound should be set correctly
+- Null Initialization
+- Given EdgeConvertCreateDDL instantiated with null tables and fields, when initialize is called, then an exception should be thrown
+- No-Argument Constructor
+- Given EdgeConvertCreateDDL created with no arguments, when initialize is called, then a NullPointerException should be thrown
+
+- Table Retrieval
+- Successful Table Retrieval by `numFigure`
+- Given initialized EdgeConvertCreateDDL with tables, when looking up table by `numFigure`, then the correct EdgeTable should be returned
+- Table Not Found by `numFigure`
+- Given initialized EdgeConvertCreateDDL with tables, when looking up non-existent table by `numFigure`, then null should be returned
+	
+- Field Retrieval
+- Successful Field Retrieval by `numFigure`
+- Given initialized EdgeConvertCreateDDL with fields, when looking up field by `numFigure`, then the correct EdgeField should be returned
+- Field Not Found by `numFigure`
+- Given initialized EdgeConvertCreateDDL with fields, when looking up non-existent field by `numFigure`, then null should be returned
+
+- EdgeTable Array Creation
+- Table Array Setup with Valid Data
+- Given EdgeConvertCreateDDL initialized with a table array, when tables are setup, then all tables should have arrays initialized
+- Null or Empty Table Array
+
+- EdgeField Array Creation
+- Field Array Setup with Valid Data
+ 	- Given EdgeConvertCreateDDL initialized with a field array, when fields are setup, then all fields should be correctly initialized
+
+
+
+--------------------------------------------------------------------------------------
+EdgeConvertFileParser:
+-----------------------
+
+- Initialization
+  - Basic Valid Setup
+    - Given a valid Edge file, when `EdgeConvertFileParser` is initialized, then `parser` should be initialized successfully without exceptions.
+
+- File Validation
+  - Empty File
+    - Given an empty Edge file, when `parseEdgeFile` is called, then an `IllegalArgumentException` should be thrown.
+  - Wrong Extension
+    - Given a file with a non-`.edg` extension, when `parseEdgeFile` is called, then an `IllegalArgumentException` should be thrown.
+
+- Connector and Style Validation
+  - Missing Connector
+    - Given an Edge file missing a connector, when `parseEdgeFile` is called, then a `ParseException` should be thrown.
+  - Invalid Style
+    - Given an Edge file with an invalid style, when `parseEdgeFile` is called, then a `ParseException` should be thrown.
+
+- Duplicate Figures Handling
+  - Duplicate Figures
+    - Given an Edge file with duplicate figure definitions, when `parseEdgeFile` is called, then a `ParseException` should be thrown.
+
+- Entity and Attribute Presence Checks
+  - Attributes Only, No Entities
+    - Given an Edge file with only attributes and no entities, when parseEdgeFile is called, the test expects parser.getEdgeTables().length to be greater than 0. This assertion will fail because the file lacks entities, which are required for a valid structure.
+  - Entities Only, No Attributes
+    - Given an Edge file with only entities and no attributes, when parseEdgeFile is called, the test expects parser.getEdgeFields().length to be greater than 0. This assertion will fail because the file lacks entities, which are required for a valid structure.
+
+- Relationships and Entity/Attribute Validation
+  - Relationships Present
+    - Given an Edge file with relationships, when `parseEdgeFile` is called, then a `ParseException` should be thrown.
+  - No Entities Nor Attributes
+    - Given an Edge file with no entities and no attributes, when `parseEdgeFile` is called, then a `ParseException` should be thrown.
+
+- Name Validation for Entities and Attributes
+  - Entity with Blank Name
+    - Given an Edge file containing an entity with a blank name, when `parseEdgeFile` is called, then a `ParseException` should be thrown.
+  - Attribute with Blank Name
+    - Given an Edge file containing an attribute with a blank name, when `parseEdgeFile` is called, then a `ParseException` should be thrown.
+
+EdgeTable:
+--------------
+- Initialization
+    - Successful Initialization
+        - Given EdgeTable initialized with valid input "1|Test", when accessed, then numFigure should be 1 and name should be "Test"
+    - Null Initialization
+        - Given EdgeTable instantiated with a null input, when initialized, then a NullPointerException should be thrown
+
+- Related Table Management
+    - Add Related Tables and Setup Arrays
+        - Given EdgeTable initialized, when addRelatedTable is called multiple times, then related tables array should contain the added values in order
+    - Empty Related Tables Array
+        - Given EdgeTable initialized without related tables, when makeArrays is called, then related tables array should be empty
+
+- Native Field Management
+    - Add Native Fields and Setup Arrays
+        - Given EdgeTable initialized, when addNativeField is called multiple times, then native fields array should contain the added values in order
+    - Empty Native Fields Array
+        - Given EdgeTable initialized without native fields, when makeArrays is called, then native fields array should be empty
+
+- Array Initialization
+    - Empty Arrays After makeArrays
+        - Given EdgeTable initialized with no related or native fields, when makeArrays is called, then all related and native arrays should be empty
+
+- Field Movement
+    - Move Field Up
+        - Given EdgeTable initialized with native fields and related fields, when moveFieldUp is called, then specified field should move up in both arrays
+    - Move Field Down
+        - Given EdgeTable initialized with native fields and related fields, when moveFieldDown is called, then specified field should move down in both arrays
+    - Boundary Test for Field Movement
+        - Given EdgeTable with multiple fields, when attempting to move the first field up or the last field down, then the array order should remain unchanged
+
+- String Representation
+    - toString Method
+        - Given EdgeTable with specified fields and tables, when toString is called, then formatted string should correctly represent the table’s details
+
