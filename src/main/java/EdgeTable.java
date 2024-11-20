@@ -33,7 +33,7 @@ public class EdgeTable {
    
    public void addRelatedTable(int relatedTable) {
       logger.debug("Adding " + relatedTable + " to related tables");
-      alRelatedTables.add(new Integer(relatedTable));
+      alRelatedTables.add(Integer.valueOf(relatedTable));
    }
    
    public int[] getRelatedTablesArray() {
@@ -58,7 +58,7 @@ public class EdgeTable {
 
    public void addNativeField(int value) {
       logger.debug("Adding " + value + " to nativeFields");
-      alNativeFields.add(new Integer(value));
+      alNativeFields.add(Integer.valueOf(value));
    }
 
    public void moveFieldUp(int index) { //move the field closer to the beginning of the list
