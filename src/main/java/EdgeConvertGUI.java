@@ -924,7 +924,7 @@ public class EdgeConvertGUI {
          try {
             pw = new PrintWriter(new BufferedWriter(new FileWriter(saveFile, false)));
             //write the identification line
-            pw.println(EdgeConvertFileParser.SAVE_ID);
+            pw.println(ParseSavedFile.SAVE_ID);
             //write the tables 
             pw.println("#Tables#");
             for (int i = 0; i < tables.length; i++) {
@@ -1029,14 +1029,14 @@ public class EdgeConvertGUI {
             if (resultClass.getSuperclass().getName().equals("EdgeConvertCreateDDL")) { //only interested in classes that extend EdgeConvertCreateDDL
                if (parseFile == null && saveFile == null) {
                   conResultClass = resultClass.getConstructor(paramTypesNull);
-                  objOutput = conResultClass.newInstance(null);
+                  objOutput = conResultClass.newInstance();
                   } else {
                   conResultClass = resultClass.getConstructor(paramTypes);
                   objOutput = conResultClass.newInstance(args);
                }
                alSubclasses.add(objOutput);
-               Method getProductName = resultClass.getMethod("getProductName", null);
-               String productName = (String)getProductName.invoke(objOutput, null);
+               Method getProductName = resultClass.getMethod("getProductName");
+               String productName = (String)getProductName.invoke(objOutput);
                alProductNames.add(productName);
             }
          }
@@ -1081,10 +1081,10 @@ public class EdgeConvertGUI {
 
       try {
          Class selectedSubclass = objSubclasses[selected].getClass();
-         Method getSQLString = selectedSubclass.getMethod("getSQLString", null);
-         Method getDatabaseName = selectedSubclass.getMethod("getDatabaseName", null);
-         strSQLString = (String)getSQLString.invoke(objSubclasses[selected], null);
-         databaseName = (String)getDatabaseName.invoke(objSubclasses[selected], null);
+         Method getSQLString = selectedSubclass.getMethod("getSQLString");
+         Method getDatabaseName = selectedSubclass.getMethod("getDatabaseName");
+         strSQLString = (String)getSQLString.invoke(objSubclasses[selected]);
+         databaseName = (String)getDatabaseName.invoke(objSubclasses[selected]);
       } catch (IllegalAccessException iae) {
          iae.printStackTrace();
       } catch (NoSuchMethodException nsme) {
@@ -1217,12 +1217,12 @@ public class EdgeConvertGUI {
             returnVal = jfcEdge.showOpenDialog(null);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                parseFile = jfcEdge.getSelectedFile();
-               ecfp = new EdgeConvertFileParser(parseFile);
-               tables = ecfp.getEdgeTables();
+               ecfp = new ParseEdgeFile(parseFile);
+               tables = ecfp.getTables();
                for (int i = 0; i < tables.length; i++) {
                   tables[i].makeArrays();
                }
-               fields = ecfp.getEdgeFields();
+               fields = ecfp.getFields();
                ecfp = null;
                populateLists();
                saveFile = null;
@@ -1256,9 +1256,9 @@ public class EdgeConvertGUI {
             returnVal = jfcEdge.showOpenDialog(null);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                saveFile = jfcEdge.getSelectedFile();
-               ecfp = new EdgeConvertFileParser(saveFile);
-               tables = ecfp.getEdgeTables();
-               fields = ecfp.getEdgeFields();
+               ecfp = new ParseSavedFile(saveFile);
+               tables = ecfp.getTables();
+               fields = ecfp.getFields();
                ecfp = null;
                populateLists();
                parseFile = null;

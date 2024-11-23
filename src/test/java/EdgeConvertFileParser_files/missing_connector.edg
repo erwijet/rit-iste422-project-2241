@@ -17,3 +17,22 @@ Figure 2
   Bounds 300,100,400,200
   FillColor 255,255,255
 }
+
+Connector ONE
+{
+  Style "Mandatory Many"
+  Figure1 1
+  Figure 15
+  EndPoint1 672,512
+  EndPoint2 832,512
+  SuppressEnd1 FALSE
+  SuppressEnd2 TRUE
+  End1 "ER mand many"
+  End2 "ER opt many"
+  End1Length 43
+  End2Length 43
+  LineWidth 2
+  EndBorderWidth 2
+  End2FillColor 252,252,252
+  Behavior 0x0000000000000000
+}
